@@ -1,6 +1,6 @@
 # Sysevents
 
-**TODO: Add description**
+For tracking and visualising project events
 
 ## Installation
 
