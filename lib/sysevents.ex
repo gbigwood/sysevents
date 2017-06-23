@@ -1,8 +1,8 @@
 defmodule Sysevents do
   use Plug.Router
+
   plug Plug.Logger
   # TODO look into: Plug.RequestId - sets up a request ID to be used in logs;
-
   plug :match
   plug Plug.Parsers, parsers: [:json],
     pass:  ["application/json"],
@@ -19,13 +19,24 @@ defmodule Sysevents do
     |> process(event_id, conn.body_params)
   end
 
+  #get "/chain" do
+  #  case Sysevents.Repo.get(Event, 0) do
+  #    nil ->
+  #      Plug.Conn.put_resp_content_type(conn, "application/json") 
+  #      |> send_resp(200, Poison.encode!(%Eventt{id: "0123"}))
+  #    event ->
+  #      Plug.Conn.put_resp_content_type(conn, "application/json") 
+  #      |> send_resp(200, "{from db}")
+  #  end
+  #end
+
   get "/chain" do
-    Plug.Conn.put_resp_content_type(conn, "application/json")  # TODO REMOVE?
-    |> send_resp(200, Poison.encode!(%Event{id: "0123"}))  # TODO more fields plz
+    Plug.Conn.put_resp_content_type(conn, "application/json") 
+    |> send_resp(200, Poison.encode!(%Event{id: "0123"}))
   end
 
   match _ do
-    send_resp(conn, 404, "unkown request type")
+    send_resp(conn, 404, "Unknown request type")
   end
 
   defp process(conn, event_id,
