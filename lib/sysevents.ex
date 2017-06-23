@@ -31,7 +31,7 @@ defmodule Sysevents do
     |> process(event_id, conn.body_params)
   end
 
-  get "/chain" do
+  get "/chain/:event_id" do
     case Sysevents.Repo.get(Event, 0) do
       nil ->
         Plug.Conn.put_resp_content_type(conn, "application/json") 
@@ -41,11 +41,6 @@ defmodule Sysevents do
         |> send_resp(200, Poison.encode!(%Eventt{id: event.event_id, parent_id: event.parent_id, type: event.type}))
     end
   end
-
-  # get "/chain" do
-  #   Plug.Conn.put_resp_content_type(conn, "application/json") 
-  #   |> send_resp(200, Poison.encode!(%Event{id: "0123"}))
-  # end
 
   match _ do
     send_resp(conn, 404, "Unknown request type")
