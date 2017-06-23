@@ -1,23 +1,21 @@
 defmodule Sysevents do
   require Logger
   use Plug.Router
+  # TODO look into: Plug.RequestId - sets up a request ID to be used in logs;
 
   plug :match
-  plug :dispatch
   plug Plug.Parsers, parsers: [:json],
     pass:  ["application/json"],
     json_decoder: Poison
-
-  # Tutorial:
-  # https://codewords.recurse.com/issues/five/building-a-web-framework-from-scratch-in-elixir
+  plug :dispatch
 
   defmodule Event do
       @derive [Poison.Encoder]
       defstruct [:id]
   end
 
-  put "/chain/:rar" do
-    Logger.info "this is the id #{rar}"
+  put "/chain/:event_id" do
+    Logger.info "this is the id #{event_id} body id #{conn.body_params["id"]} is there"
     send_resp(conn, 200, "Success!")
   end
 
@@ -27,7 +25,7 @@ defmodule Sysevents do
   end
 
   match _ do
-        send_resp(conn, 404, "oops")
+    send_resp(conn, 404, "oops")
   end
 
 end
