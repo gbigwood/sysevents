@@ -1,10 +1,12 @@
 defmodule Sysevents do
   require Logger
-  import Plug.Conn
-  # plug Plug.Parsers, parsers: [:urlencoded, :json],
-  # pass:  ["text/*"],
-  # json_decoder: Poison
+  use Plug.Router
 
+  plug :match
+  plug :dispatch
+  plug Plug.Parsers, parsers: [:json],
+    pass:  ["application/json"],
+    json_decoder: Poison
 
   # Tutorial:
   # https://codewords.recurse.com/issues/five/building-a-web-framework-from-scratch-in-elixir
@@ -14,31 +16,18 @@ defmodule Sysevents do
       defstruct [:id]
   end
 
-
-  def init(default_opts) do
-    Logger.info "starting up"
+  put "/chain/:rar" do
+    Logger.info "this is the id #{rar}"
+    send_resp(conn, 200, "Success!")
   end
 
-  def call(conn, _opts) do
-    route(conn.method, conn.path_info, conn)
+  get "/chain" do
+    Plug.Conn.put_resp_content_type(conn, "application/json")  # might not need to do this
+    |> send_resp(200, Poison.encode!(%Event{id: "0123"}))
   end
 
-  def route("PUT", ["event"], conn) do
-    # put a chain
-    conn 
-    |> send_resp(200, "you put: #{conn.body_params["id"]}")
-  end
-
-  def route("GET", ["chain", event_id], conn) do
-    # this route is for /chain/event_id
-    conn 
-    |> put_resp_content_type("application/json") 
-    |> send_resp(200, Poison.encode!(%Event{id: "#{event_id}"}))
-  end
-
-  def route(_method, _path, conn) do
-    # this route is called if no other routes match
-    conn |> send_resp(404, "Couldn't find that page, sorry!")
+  match _ do
+        send_resp(conn, 404, "oops")
   end
 
 end
