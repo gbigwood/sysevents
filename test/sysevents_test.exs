@@ -1,8 +1,8 @@
 defmodule SyseventsTest do
   use ExUnit.Case, async: true
   use Plug.Test
-  require Sysevents.Event
-  alias Sysevents.Event, as: Event
+  require Sysevents.Eventt
+  alias Sysevents.Eventt, as: Eventt
   doctest Sysevents
 
   @opts Sysevents.init([])
@@ -12,6 +12,7 @@ defmodule SyseventsTest do
     conn = conn(:get, "/chain")
 
     # Invoke the plug
+    Sysevents.start(conn, @opts)
     conn = Sysevents.call(conn, @opts)
 
     # Assert the response and status
@@ -26,7 +27,7 @@ defmodule SyseventsTest do
       :put, 
       "/chain/123", 
       Poison.encode!(
-	%Event{parent_id: "321", type: "test_event"}))
+	%Eventt{parent_id: "321", type: "test_event"}))
 	   |> put_req_header("content-type", "application/json")
 
     # Invoke the plug

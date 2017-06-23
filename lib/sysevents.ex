@@ -1,5 +1,6 @@
 defmodule Sysevents do
   use Plug.Router
+  use Application
 
   plug Plug.Logger
   # TODO look into: Plug.RequestId - sets up a request ID to be used in logs;
@@ -9,9 +10,20 @@ defmodule Sysevents do
     json_decoder: Poison
   plug :dispatch
 
-  defmodule Event do
+  defmodule Eventt do
       @derive [Poison.Encoder]
       defstruct [:id, :parent_id, :type]
+  end
+
+  def start(_type, _args) do
+    import Supervisor.Spec, warn: false
+
+    children = [
+      worker(Sysevents.Repo, [])
+    ]
+
+    opts = [strategy: :one_for_one, name: Sysevents.Supervisor]
+    Supervisor.start_link(children, opts)
   end
 
   put "/chain/:event_id" do
@@ -19,21 +31,21 @@ defmodule Sysevents do
     |> process(event_id, conn.body_params)
   end
 
-  #get "/chain" do
-  #  case Sysevents.Repo.get(Event, 0) do
-  #    nil ->
-  #      Plug.Conn.put_resp_content_type(conn, "application/json") 
-  #      |> send_resp(200, Poison.encode!(%Eventt{id: "0123"}))
-  #    event ->
-  #      Plug.Conn.put_resp_content_type(conn, "application/json") 
-  #      |> send_resp(200, "{from db}")
-  #  end
-  #end
-
   get "/chain" do
-    Plug.Conn.put_resp_content_type(conn, "application/json") 
-    |> send_resp(200, Poison.encode!(%Event{id: "0123"}))
+    case Sysevents.Repo.get(Event, 0) do
+      nil ->
+        Plug.Conn.put_resp_content_type(conn, "application/json") 
+        |> send_resp(200, Poison.encode!(%Eventt{id: "0123"}))
+      event ->
+        Plug.Conn.put_resp_content_type(conn, "application/json") 
+        |> send_resp(200, Poison.encode!(%Eventt{id: event.event_id, parent_id: event.parent_id, type: event.type}))
+    end
   end
+
+  # get "/chain" do
+  #   Plug.Conn.put_resp_content_type(conn, "application/json") 
+  #   |> send_resp(200, Poison.encode!(%Event{id: "0123"}))
+  # end
 
   match _ do
     send_resp(conn, 404, "Unknown request type")
