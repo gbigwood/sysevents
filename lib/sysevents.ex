@@ -31,8 +31,9 @@ defmodule Sysevents do
     |> process(event_id, conn.body_params)
   end
 
+  require Ecto.Query
   get "/chain/:event_id" do
-    case Sysevents.Repo.get(Event, 0) do
+    case Event |> Sysevents.Repo.get_by(event_id: event_id) do
       nil ->
         Plug.Conn.put_resp_content_type(conn, "application/json") 
         |> send_resp(200, Poison.encode!(%Eventt{id: "0123"}))

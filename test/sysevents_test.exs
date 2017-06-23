@@ -7,19 +7,6 @@ defmodule SyseventsTest do
 
   @opts Sysevents.init([])
 
-  test "returns reponse with id" do
-    # Create a test connection
-    conn = conn(:get, "/chain/123")
-
-    # Invoke the plug
-    Sysevents.start(conn, @opts)
-    conn = Sysevents.call(conn, @opts)
-
-    # Assert the response and status
-    assert conn.state == :sent
-    assert conn.status == 200
-    assert Poison.decode!(conn.resp_body)["id"] == "0123"
-  end
 
   test "accepts valid put" do
     # Create a test connection
