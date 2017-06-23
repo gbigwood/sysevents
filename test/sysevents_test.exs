@@ -9,7 +9,7 @@ defmodule SyseventsTest do
 
   test "returns reponse with id" do
     # Create a test connection
-    conn = conn(:get, "/chain")
+    conn = conn(:get, "/chain/123")
 
     # Invoke the plug
     Sysevents.start(conn, @opts)
@@ -74,7 +74,7 @@ defmodule SyseventsTest do
     assert conn.status == 200
 
     # Create a GET connection
-    conn = conn(:get, "/chain")
+    conn = conn(:get, "/chain/#{event_id}")
 
     # Invoke the plug
     conn = Sysevents.call(conn, @opts)
