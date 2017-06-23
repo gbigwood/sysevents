@@ -26,7 +26,7 @@ defmodule SyseventsTest do
       :put, 
       "/chain/123", 
       Poison.encode!(
-	%Event{id: "0123", parent_id: "321", type: "test_event"}))
+	%Event{parent_id: "321", type: "test_event"}))
 	   |> put_req_header("content-type", "application/json")
 
     # Invoke the plug
@@ -37,13 +37,13 @@ defmodule SyseventsTest do
     assert conn.status == 200
   end
 
-  test "rejects invalid put" do
+  test "rejects put with missing parent" do
     # Create a test connection
     conn = conn(
       :put, 
       "/chain/123", 
       Poison.encode!(
-	%{"id" => "0123", "type" => "test_event"}))
+	%{"type" => "test_event"}))
 	   |> put_req_header("content-type", "application/json")
 
     # Invoke the plug
@@ -53,7 +53,4 @@ defmodule SyseventsTest do
     assert conn.state == :sent
     assert conn.status == 404
   end
-  
-  # TODO accepts with more fields
-
 end
