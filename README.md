@@ -42,3 +42,23 @@ iex(4)> Sysevents.Repo.insert!(event)
  parent_id: "321", type: "some_event"}
 iex(5)>
 ```
+
+
+Sample sqlite console work after running the unit tests:
+```
+#[↑0]$gbn6192@MLGBLOCR04-0078:~/Documents/gitroot/sysevents>
+sqlite3
+SQLite version 3.8.10.2 2015-05-20 18:17:19
+Enter ".help" for usage hints.
+Connected to a transient in-memory database.
+Use ".open FILENAME" to reopen on a persistent database.
+sqlite> .open sysevents.sqlite3
+sqlite> .scheme events
+Error: unknown command or invalid arguments:  "scheme". Enter ".help" for help
+sqlite> .schema events
+CREATE TABLE "events" ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "event_id" TEXT, "parent_id" TEXT, "type" TEXT);
+sqlite> select * from events;
+0|0123|321|some_event
+1|123|321|test_event
+2|123|321|test_event
+```
