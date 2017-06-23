@@ -31,6 +31,7 @@ defmodule SyseventsTest do
 	   |> put_req_header("content-type", "application/json")
 
     # Invoke the plug
+    Sysevents.start(conn, @opts)
     conn = Sysevents.call(conn, @opts)
 
     # Assert the response and status

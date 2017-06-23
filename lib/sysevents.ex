@@ -53,7 +53,7 @@ defmodule Sysevents do
 
   defp process(conn, event_id,
                 %{"parent_id" => parent_id, "type" => type} = params) do
-    # TODO Store the entry
+    Sysevents.Repo.insert!(%Event{event_id: event_id, parent_id: parent_id, type: type})
     send_resp(conn, 200, "Success!")
   end
 
