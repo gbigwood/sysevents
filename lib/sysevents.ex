@@ -1,6 +1,7 @@
 defmodule Sysevents do
   require Logger
   use Plug.Router
+  plug Plug.Logger
   # TODO look into: Plug.RequestId - sets up a request ID to be used in logs;
 
   plug :match
@@ -29,3 +30,4 @@ defmodule Sysevents do
   end
 
 end
+
