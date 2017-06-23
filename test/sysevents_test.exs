@@ -20,10 +20,13 @@ defmodule SyseventsTest do
     assert Poison.decode!(conn.resp_body)["id"] == "0123"
   end
 
-
-  test "accepts put" do
+  test "accepts valid put" do
     # Create a test connection
-    conn = conn(:put, "/chain/123", Poison.encode!(%Event{id: "0123"}))
+    conn = conn(
+      :put, 
+      "/chain/123", 
+      Poison.encode!(
+	%Event{id: "0123", parent_id: "321", type: "test_event"}))
 	   |> put_req_header("content-type", "application/json")
 
     # Invoke the plug
@@ -33,4 +36,24 @@ defmodule SyseventsTest do
     assert conn.state == :sent
     assert conn.status == 200
   end
+
+  test "rejects invalid put" do
+    # Create a test connection
+    conn = conn(
+      :put, 
+      "/chain/123", 
+      Poison.encode!(
+	%{"id" => "0123", "type" => "test_event"}))
+	   |> put_req_header("content-type", "application/json")
+
+    # Invoke the plug
+    conn = Sysevents.call(conn, @opts)
+
+    # Assert the response and status
+    assert conn.state == :sent
+    assert conn.status == 404
+  end
+  
+  # TODO accepts with more fields
+
 end

@@ -12,12 +12,23 @@ defmodule Sysevents do
 
   defmodule Event do
       @derive [Poison.Encoder]
-      defstruct [:id]
+      defstruct [:id, :parent_id, :type]
+  end
+
+  defp validate(
+    conn, 
+    %{"id" => id, "parent_id" => parent_id, "type" => type}) do
+    send_resp(conn, 200, "Success!")
+  end
+
+  defp validate(conn, _params) do
+    send_resp(conn, 404, "bad_request")
   end
 
   put "/chain/:event_id" do
-    Logger.debug "this is the id #{event_id} body id #{conn.body_params["id"]}"
-    send_resp(conn, 200, "Success!")
+    Logger.info "This is the id #{event_id} body id #{conn.body_params["id"]}"
+    conn 
+    |> validate(conn.body_params)
   end
 
   get "/chain" do
