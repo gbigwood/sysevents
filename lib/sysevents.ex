@@ -16,7 +16,7 @@ defmodule Sysevents do
   end
 
   put "/chain/:event_id" do
-    Logger.info "this is the id #{event_id} body id #{conn.body_params["id"]} is there"
+    Logger.debug "this is the id #{event_id} body id #{conn.body_params["id"]} is there"
     send_resp(conn, 200, "Success!")
   end
 
