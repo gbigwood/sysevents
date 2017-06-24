@@ -1,8 +1,8 @@
 defmodule SyseventsTest do
   use ExUnit.Case, async: true
   use Plug.Test
-  require Sysevents.Eventt
-  alias Sysevents.Eventt, as: Eventt
+  require Sysevents.Link
+  alias Sysevents.Link, as: Link
   doctest Sysevents
 
   @opts Sysevents.init([])
@@ -13,7 +13,7 @@ defmodule SyseventsTest do
       :put, 
       "/chain/123", 
       Poison.encode!(
-	%Eventt{parent_id: "321", type: "test_event"}))
+	%Link{parent_id: "321", type: "test_event"}))
 	   |> put_req_header("content-type", "application/json")
 
     # Invoke the plug
@@ -42,10 +42,27 @@ defmodule SyseventsTest do
     assert conn.status == 404
   end
 
+
+  test "rejects get for missing link" do
+    # Create a test connection
+    event_id = Base.encode16(:crypto.hash(:sha256, to_string(:rand.uniform())))
+
+    # Create a GET connection
+    conn = conn(:get, "/chain/#{event_id}")
+
+    # Invoke the plug
+    Sysevents.start(conn, @opts)
+    conn = Sysevents.call(conn, @opts)
+
+    # Assert the response and status
+    assert conn.state == :sent
+    assert conn.status == 404
+  end
+
   test "allows put and get" do
     # create a test event
     event_id = Base.encode16(:crypto.hash(:sha256, to_string(:rand.uniform())))
-    event = %Eventt{parent_id: "321", type: "test_event"}
+    event = %Link{parent_id: "321", type: "test_event"}
 
     # Create a PUT connection
     conn = conn(:put, "/chain/#{event_id}", Poison.encode!(event))

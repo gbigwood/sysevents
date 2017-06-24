@@ -11,7 +11,7 @@ defmodule Sysevents do
     json_decoder: Poison
   plug :dispatch
 
-  defmodule Eventt do
+  defmodule Link do
       @derive [Poison.Encoder]
       defstruct [:id, :parent_id, :type]
   end
@@ -25,11 +25,11 @@ defmodule Sysevents do
   get "/chain/:event_id" do
     case Event |> Sysevents.Repo.get_by(event_id: event_id) do
       nil ->
-        Plug.Conn.put_resp_content_type(conn, "application/json") 
-        |> send_resp(200, Poison.encode!(%Eventt{id: "0123"}))
+        Plug.Conn.put_resp_content_type(conn, "text/plain") 
+        |> send_resp(404, "Unknown link #{event_id}")
       event ->
         Plug.Conn.put_resp_content_type(conn, "application/json") 
-        |> send_resp(200, Poison.encode!(%Eventt{id: event.event_id, parent_id: event.parent_id, type: event.type}))
+        |> send_resp(200, Poison.encode!(%Link{id: event.event_id, parent_id: event.parent_id, type: event.type}))
     end
   end
 
