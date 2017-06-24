@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+set -x
+
+sqlite3 sysevents.sqlite3 'CREATE TABLE "events" ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "event_id" TEXT, "parent_id" TEXT, "type" TEXT);'

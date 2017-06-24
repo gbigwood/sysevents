@@ -7,7 +7,6 @@ defmodule SyseventsTest do
 
   @opts Sysevents.init([])
 
-
   test "accepts valid put" do
     # Create a test connection
     conn = conn(

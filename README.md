@@ -17,6 +17,12 @@ Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_do
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at [https://hexdocs.pm/sysevents](https://hexdocs.pm/sysevents).
 
+The database must be initialised so _please run the `./build` script before
+`mix test`._
+
+
+## Notes
+
 Some random nodes on migrating and creating the DB from [tutorial](https://codewords.recurse.com/issues/five/building-a-web-framework-from-scratch-in-elixir)
 
 ```
