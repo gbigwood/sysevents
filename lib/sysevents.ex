@@ -28,25 +28,29 @@ defmodule Sysevents do
         |> send_resp(404, "Unknown link #{event_id}")
       event ->
         Plug.Conn.put_resp_content_type(conn, "application/json") 
-        |> send_resp(200, Poison.encode!(%Link{id: event.event_id, parent_id: event.parent_id, type: event.type}))
+        |> send_resp(200, Poison.encode!(
+          %Link{id: event.event_id, parent_id: event.parent_id, type: event.type}))
     end
   end
 
   get "/chain/:event_id" do
-    get_result_chain(conn, event_id)
-  end
-
-  defp get_result_chain(conn, event_id) do
-    # TODO base --> get nothing so return nil
-    # TODO recurse for parents
-    # TODO recurse for children
-    case Event |> Sysevents.Repo.get_by(event_id: event_id) do
+    case Link |> get_result_chain(conn, event_id) do # TODO list of events
       nil ->
         Plug.Conn.put_resp_content_type(conn, "text/plain") 
         |> send_resp(404, "Unknown link #{event_id}")
-      event ->
+      link ->
         Plug.Conn.put_resp_content_type(conn, "application/json") 
-        |> send_resp(200, Poison.encode!([%Link{id: event.event_id, parent_id: event.parent_id, type: event.type}]))
+        |> send_resp(200, Poison.encode!([link]))
+    end
+  end
+
+  defp get_result_chain(_, conn, event_id) do
+    # get nothing so return nil
+    # TODO recurse for parents
+    # TODO recurse for children
+    case Event |> Sysevents.Repo.get_by(event_id: event_id) do
+      nil -> nil
+      event -> %Link{id: event.event_id, parent_id: event.parent_id, type: event.type}
     end
   end
 

@@ -31,7 +31,7 @@ defmodule SyseventsTest do
 
   test "rejects get for missing link" do
     # Create a test connection
-    event_id = Base.encode16(:crypto.hash(:sha256, to_string(:rand.uniform())))
+    event_id = uuid()
 
     # Create a GET connection
     conn = conn(:get, "/link/#{event_id}")
@@ -47,7 +47,7 @@ defmodule SyseventsTest do
 
   test "rejects get for missing chain" do
     # Create a test connection
-    event_id = Base.encode16(:crypto.hash(:sha256, to_string(:rand.uniform())))
+    event_id = uuid()
 
     # Create a GET connection
     conn = conn(:get, "/chain/#{event_id}")
@@ -62,7 +62,7 @@ defmodule SyseventsTest do
 
   test "allows put and get" do
     # create a test event
-    event_id = Base.encode16(:crypto.hash(:sha256, to_string(:rand.uniform())))
+    event_id = uuid()
     event = %Link{parent_id: "321", type: "test_event"}
 
     put_link(event_id, event)
@@ -74,22 +74,45 @@ defmodule SyseventsTest do
     assert result["type"] == "test_event"
   end
 
-  test "allows put and get of chain" do
+  test "get of chain contains head with pushed link" do
     # create test events
-    event_id0 = Base.encode16(:crypto.hash(:sha256, to_string(:rand.uniform())))
+    event_id0 = uuid()
     event0 = %Link{parent_id: "321", type: "test_event"}
 
-    event_id1 = Base.encode16(:crypto.hash(:sha256, to_string(:rand.uniform())))
+    event_id1 = uuid()
     event1 = %Link{parent_id: event_id0, type: "test_event"}
 
     put_link(event_id0, event0)
     put_link(event_id1, event1)
 
     result = Poison.decode!(get_chain(event_id1).resp_body)
-    [head | tail] = result
-    assert head["id"] == event_id1
-    assert head["parent_id"] == event_id0
-    assert head["type"] == "test_event"
+    [first | tail] = result
+    assert first["id"] == event_id1
+    assert first["parent_id"] == event_id0
+    assert first["type"] == "test_event"
+  end
+
+  test "allows put and get of chain with multiple links" do
+    # create test events
+    event_id0 = uuid()
+    event0 = %Link{parent_id: "321", type: "test_event"}
+
+    event_id1 = uuid()
+    event1 = %Link{parent_id: event_id0, type: "test_event"}
+
+    put_link(event_id0, event0)
+    put_link(event_id1, event1)
+
+    result = Poison.decode!(get_chain(event_id1).resp_body)
+    [first | tail] = result
+    assert first["id"] == event_id1
+    assert first["parent_id"] == event_id0
+    assert first["type"] == "test_event"
+
+    [second | tail] = tail
+    assert second["id"] == event_id0
+    assert second["parent_id"] == "321"
+    assert second["type"] == "test_event"
   end
 
   defp put_link(event_id, event) do
@@ -129,5 +152,9 @@ defmodule SyseventsTest do
     assert conn.state == :sent
     assert conn.status == 200
     conn
+  end
+
+  defp uuid() do
+    Base.encode16(:crypto.hash(:sha256, to_string(:rand.uniform())))
   end
 end
