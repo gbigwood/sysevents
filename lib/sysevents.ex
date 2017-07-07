@@ -46,7 +46,7 @@ defmodule Sysevents do
         |> send_resp(404, "Unknown link #{event_id}")
       event ->
         Plug.Conn.put_resp_content_type(conn, "application/json") 
-        |> send_resp(200, Poison.encode!(%Link{id: event.event_id, parent_id: event.parent_id, type: event.type}))
+        |> send_resp(200, Poison.encode!([%Link{id: event.event_id, parent_id: event.parent_id, type: event.type}]))
     end
   end
 

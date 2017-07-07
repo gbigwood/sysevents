@@ -86,10 +86,10 @@ defmodule SyseventsTest do
     put_link(event_id1, event1)
 
     result = Poison.decode!(get_chain(event_id1).resp_body)
-
-    assert result["id"] == event_id1
-    assert result["parent_id"] == event_id0
-    assert result["type"] == "test_event"
+    [head | tail] = result
+    assert head["id"] == event_id1
+    assert head["parent_id"] == event_id0
+    assert head["type"] == "test_event"
   end
 
   defp put_link(event_id, event) do
