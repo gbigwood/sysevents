@@ -37,7 +37,6 @@ defmodule SyseventsTest do
     conn = conn(:get, "/link/#{event_id}")
 
     # Invoke the plug
-    Sysevents.start(conn, @opts)
     conn = Sysevents.call(conn, @opts)
 
     # Assert the response and status
@@ -54,7 +53,6 @@ defmodule SyseventsTest do
     conn = conn(:get, "/chain/#{event_id}")
 
     # Invoke the plug
-    Sysevents.start(conn, @opts)
     conn = Sysevents.call(conn, @opts)
 
     # Assert the response and status
@@ -100,7 +98,6 @@ defmodule SyseventsTest do
            |> put_req_header("content-type", "application/json")
 
     # Invoke the plug
-    Sysevents.start(conn, @opts)
     conn = Sysevents.call(conn, @opts)
 
     # Assert the response and status
