@@ -17,12 +17,12 @@ defmodule Sysevents do
   end
 
 
-  put "/chain/:event_id" do
+  put "/link/:event_id" do
     conn 
     |> process(event_id, conn.body_params)
   end
 
-  get "/chain/:event_id" do
+  get "/link/:event_id" do
     case Event |> Sysevents.Repo.get_by(event_id: event_id) do
       nil ->
         Plug.Conn.put_resp_content_type(conn, "text/plain") 
@@ -32,6 +32,8 @@ defmodule Sysevents do
         |> send_resp(200, Poison.encode!(%Link{id: event.event_id, parent_id: event.parent_id, type: event.type}))
     end
   end
+
+  # TODO add a /chain that has a get method that returns the json tree for the whole chain
 
   match _ do
     send_resp(conn, 404, "Unknown request type")
