@@ -33,14 +33,7 @@ defmodule Sysevents do
   end
 
   get "/chain/:event_id" do
-    case Event |> Sysevents.Repo.get_by(event_id: event_id) do
-      nil ->
-        Plug.Conn.put_resp_content_type(conn, "text/plain") 
-        |> send_resp(404, "Unknown link #{event_id}")
-      event ->
-        Plug.Conn.put_resp_content_type(conn, "application/json") 
-        |> send_resp(200, Poison.encode!(%Link{id: event.event_id, parent_id: event.parent_id, type: event.type}))
-    end
+    get_result_chain(conn, event_id)
   end
 
   defp get_result_chain(conn, event_id) do
@@ -72,11 +65,9 @@ defmodule Sysevents do
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
-
     children = [
       worker(Sysevents.Repo, [])
     ]
-
     opts = [strategy: :one_for_one, name: Sysevents.Supervisor]
     Supervisor.start_link(children, opts)
   end
