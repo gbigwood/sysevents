@@ -92,7 +92,7 @@ defmodule SyseventsTest do
     assert first["type"] == "test_event"
   end
 
-  test "allows put and get of chain with multiple links" do
+  test "get of chain with multiple links" do
     # create test events
     event_id0 = uuid()
     event0 = %Link{parent_id: "321", type: "test_event"}
@@ -113,6 +113,10 @@ defmodule SyseventsTest do
     assert second["id"] == event_id0
     assert second["parent_id"] == "321"
     assert second["type"] == "test_event"
+  end
+
+  test "get entire chain from middle" do
+    assert False
   end
 
   defp put_link(event_id, event) do

@@ -34,8 +34,11 @@ defmodule Sysevents do
   end
 
   get "/chain/:event_id" do
-    case get_chain(event_id) do # TODO list of events
-      nil ->
+    case get_chain(event_id) do
+      nil -> # unknown
+        Plug.Conn.put_resp_content_type(conn, "text/plain") 
+        |> send_resp(404, "Unknown link #{event_id}")
+      [] -> # TODO Maybe should be 200?
         Plug.Conn.put_resp_content_type(conn, "text/plain") 
         |> send_resp(404, "Unknown link #{event_id}")
       chain ->
@@ -45,12 +48,9 @@ defmodule Sysevents do
   end
 
   defp get_chain(event_id) do
-    # get nothing so return nil
-    # TODO recurse for parents
-    # TODO recurse for children
     case get_link_from_db(event_id) do
-      nil -> nil
-      link -> [link]
+      nil -> []
+      link -> [link] ++ get_chain(link.parent_id) # TODO a horror show of recursion
     end
   end
 
