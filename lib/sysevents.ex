@@ -34,20 +34,27 @@ defmodule Sysevents do
   end
 
   get "/chain/:event_id" do
-    case Link |> get_result_chain(conn, event_id) do # TODO list of events
+    case get_chain(event_id) do # TODO list of events
       nil ->
         Plug.Conn.put_resp_content_type(conn, "text/plain") 
         |> send_resp(404, "Unknown link #{event_id}")
-      link ->
+      chain ->
         Plug.Conn.put_resp_content_type(conn, "application/json") 
-        |> send_resp(200, Poison.encode!([link]))
+        |> send_resp(200, Poison.encode!(chain))
     end
   end
 
-  defp get_result_chain(_, conn, event_id) do
+  defp get_chain(event_id) do
     # get nothing so return nil
     # TODO recurse for parents
     # TODO recurse for children
+    case get_link_from_db(event_id) do
+      nil -> nil
+      link -> [link]
+    end
+  end
+
+  defp get_link_from_db(event_id) do
     case Event |> Sysevents.Repo.get_by(event_id: event_id) do
       nil -> nil
       event -> %Link{id: event.event_id, parent_id: event.parent_id, type: event.type}
