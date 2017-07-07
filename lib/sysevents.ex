@@ -34,8 +34,8 @@ defmodule Sysevents do
   end
 
   get "/chain/:event_id" do
-    case get_chain(event_id) do
-      nil -> # unknown
+    case get_chain(event_id, []) do
+      nil -> # unknown should never happen
         Plug.Conn.put_resp_content_type(conn, "text/plain") 
         |> send_resp(404, "Unknown link #{event_id}")
       [] -> # TODO Maybe should be 200?
@@ -43,14 +43,14 @@ defmodule Sysevents do
         |> send_resp(404, "Unknown link #{event_id}")
       chain ->
         Plug.Conn.put_resp_content_type(conn, "application/json") 
-        |> send_resp(200, Poison.encode!(chain))
+        |> send_resp(200, Poison.encode!(chain |> Enum.reverse))
     end
   end
 
-  defp get_chain(event_id) do
+  defp get_chain(event_id, accumulator) do
     case get_link_from_db(event_id) do
-      nil -> []
-      link -> [link] ++ get_chain(link.parent_id) # TODO a horror show of recursion
+      nil -> accumulator
+      link-> get_chain(link.parent_id, [link | accumulator])
     end
   end
 

@@ -109,7 +109,7 @@ defmodule SyseventsTest do
     assert first["parent_id"] == event_id0
     assert first["type"] == "test_event"
 
-    [second | tail] = tail
+    [second | _] = tail
     assert second["id"] == event_id0
     assert second["parent_id"] == "321"
     assert second["type"] == "test_event"
