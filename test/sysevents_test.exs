@@ -45,6 +45,23 @@ defmodule SyseventsTest do
     assert conn.status == 404
   end
 
+
+  test "rejects get for missing chain" do
+    # Create a test connection
+    event_id = Base.encode16(:crypto.hash(:sha256, to_string(:rand.uniform())))
+
+    # Create a GET connection
+    conn = conn(:get, "/chain/#{event_id}")
+
+    # Invoke the plug
+    Sysevents.start(conn, @opts)
+    conn = Sysevents.call(conn, @opts)
+
+    # Assert the response and status
+    assert conn.state == :sent
+    assert conn.status == 404
+  end
+
   test "allows put and get" do
     # create a test event
     event_id = Base.encode16(:crypto.hash(:sha256, to_string(:rand.uniform())))
