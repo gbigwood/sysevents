@@ -86,5 +86,7 @@ defmodule SyseventsTest do
     assert conn.state == :sent
     assert conn.status == 200
     assert Poison.decode!(conn.resp_body)["id"] == event_id
+    assert Poison.decode!(conn.resp_body)["parent_id"] == "321"
+    assert Poison.decode!(conn.resp_body)["type"] == "test_event"
   end
 end
