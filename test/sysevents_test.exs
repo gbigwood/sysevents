@@ -69,18 +69,11 @@ defmodule SyseventsTest do
 
     put_link(event_id, event)
 
-    # Create a GET connection
-    conn = conn(:get, "/link/#{event_id}")
+    result = Poison.decode!(get_link(event_id).resp_body)
 
-    # Invoke the plug
-    conn = Sysevents.call(conn, @opts)
-
-    # Assert the response and status
-    assert conn.state == :sent
-    assert conn.status == 200
-    assert Poison.decode!(conn.resp_body)["id"] == event_id
-    assert Poison.decode!(conn.resp_body)["parent_id"] == "321"
-    assert Poison.decode!(conn.resp_body)["type"] == "test_event"
+    assert result["id"] == event_id
+    assert result["parent_id"] == "321"
+    assert result["type"] == "test_event"
   end
 
   test "allows put and get of chain" do
@@ -94,11 +87,11 @@ defmodule SyseventsTest do
     put_link(event_id0, event0)
     put_link(event_id1, event1)
 
-    conn = get_chain(event_id1)
+    result = Poison.decode!(get_chain(event_id1).resp_body)
 
-    assert Poison.decode!(conn.resp_body)["id"] == event_id1
-    assert Poison.decode!(conn.resp_body)["parent_id"] == event_id0
-    assert Poison.decode!(conn.resp_body)["type"] == "test_event"
+    assert result["id"] == event_id1
+    assert result["parent_id"] == event_id0
+    assert result["type"] == "test_event"
   end
 
   defp put_link(event_id, event) do
@@ -118,6 +111,19 @@ defmodule SyseventsTest do
   defp get_chain(event_id) do
     # Create a GET connection
     conn = conn(:get, "/chain/#{event_id}")
+
+    # Invoke the plug
+    conn = Sysevents.call(conn, @opts)
+
+    # Assert the response and status
+    assert conn.state == :sent
+    assert conn.status == 200
+    conn
+  end
+
+  defp get_link(event_id) do
+    # Create a GET connection
+    conn = conn(:get, "/link/#{event_id}")
 
     # Invoke the plug
     conn = Sysevents.call(conn, @opts)
