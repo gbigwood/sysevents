@@ -35,10 +35,7 @@ defmodule Sysevents do
 
   get "/chain/:event_id" do
     case get_chain(event_id, []) do
-      nil -> # unknown should never happen...
-        Plug.Conn.put_resp_content_type(conn, "text/plain") 
-        |> send_resp(500, "Unknown link #{event_id}")
-      [] -> # TODO Maybe should be 200?
+      [] -> 
         Plug.Conn.put_resp_content_type(conn, "text/plain") 
         |> send_resp(404, "Unknown link #{event_id}")
       chain ->
