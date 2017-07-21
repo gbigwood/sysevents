@@ -97,7 +97,34 @@ defmodule SyseventsTest do
   end
 
   test "get entire chain from middle" do
-    assert False
+    # create test events
+    event_id0 = uuid()
+    event0 = %Link{parent_id: "321", type: "test_event"}
+
+    event_id1 = uuid()
+    event1 = %Link{parent_id: event_id0, type: "test_event"}
+
+    event_id2 = uuid()
+    event2 = %Link{parent_id: event_id1, type: "test_event"}
+
+    put_link(event_id0, event0)
+    put_link(event_id1, event1)
+    put_link(event_id2, event2)
+
+    result = Poison.decode!(get_chain(event_id1).resp_body)
+
+    # TODO could refactor into a neater pattern match?
+    [first | tail] = result
+    assert first["id"] == event_id0
+    assert first["parent_id"] == "321"
+
+    [second | tail] = tail
+    assert second["id"] == event_id1
+    assert second["parent_id"] == event_id0
+
+    [third | _] = tail
+    assert third["id"] == event_id2
+    assert third["parent_id"] == event_id1
   end
 
   defp put_link(event_id, event) do

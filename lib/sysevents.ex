@@ -87,6 +87,7 @@ defmodule Sysevents do
   end
 
   def main do
+    # not really a main function because it doesn't take `args`
     port_str = System.get_env("PORT") || "4000"
     port = String.to_integer(port_str)
     IO.puts "received port: #{port_str}"
