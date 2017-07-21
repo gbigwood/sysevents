@@ -21,6 +21,20 @@ The database must be initialised so _please run the `./build` script before
 `mix test`._
 
 
+## Running as application
+
+```
+mix run --no-halt
+```
+
+Should give output similar to:
+
+```
+Compiling 2 files (.ex)
+Starting application
+received port: 4000
+```
+
 ## Notes
 
 Some random nodes on migrating and creating the DB from [tutorial](https://codewords.recurse.com/issues/five/building-a-web-framework-from-scratch-in-elixir)

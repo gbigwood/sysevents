@@ -16,6 +16,10 @@ defmodule Sysevents do
       defstruct [:id, :parent_id, :type]
   end
 
+  get "/" do
+    send_resp(conn, 200, "ok")
+  end
+
   put "/link/:event_id" do
     conn 
     |> process(event_id, conn.body_params)
@@ -74,9 +78,18 @@ defmodule Sysevents do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
     children = [
-      worker(Sysevents.Repo, [])
+      worker(Sysevents.Repo, []),
+      worker(__MODULE__, [], function: :main),
     ]
     opts = [strategy: :one_for_one, name: Sysevents.Supervisor]
+    IO.puts "Starting application"
     Supervisor.start_link(children, opts)
+  end
+
+  def main do
+    port_str = System.get_env("PORT") || "4000"
+    port = String.to_integer(port_str)
+    IO.puts "received port: #{port_str}"
+    {:ok, _} = Plug.Adapters.Cowboy.http Sysevents, [], port: port
   end
 end
