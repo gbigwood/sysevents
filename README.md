@@ -35,6 +35,24 @@ Starting application
 received port: 4000
 ```
 
+### Visualizing graphs
+
+The `demo.sh` script creates a four node graph assuming the sysevents program is running, and constructs a png of the demo chain.
+
+Please note that python is required. I recommend making a virtualenv for python3 and then installing the `requirements.txt` 
+
+```
+python3 -m venv .venv
+.venv/bin/pip3 install -r requirements.txt
+```
+
+You can then run the demo like so:
+
+```
+./demo.sh && open /tmp/grid.png
+```
+
+
 ## Notes
 
 Some random nodes on migrating and creating the DB from [tutorial](https://codewords.recurse.com/issues/five/building-a-web-framework-from-scratch-in-elixir)
