@@ -5,20 +5,11 @@ import sys
 
 
 def graph_from_json(chain, primary_uuid):
-    edges = []
-    nodes = []
-    for link in chain:
-        nodes.append((link['id'], "{}\n{}".format(link['id'], link['type'])))
-        if link['parent_id']:
-            edges.append((
-                link['parent_id'],
-                link['id']
-                ))
+    nodes = [(link['id'], "{}\n{}".format(link['id'], link['type'])) for link in chain]
+    edges = [(link['parent_id'], link['id']) for link in chain if link['parent_id']]
 
     graph = networkx.DiGraph()
     for node in nodes:
-        #graph.add_node(node[0], label=node[1], shape='octagon' if node[0] == primary_uuid else 'oval')
-        #graph.add_node(node[0], label=node[1], color='red' if node[0] == primary_uuid else 'black')
         graph.add_node(node[0], label=node[1], penwidth=3 if node[0] == primary_uuid else 1)
     graph.add_edges_from(edges)
     return graph
