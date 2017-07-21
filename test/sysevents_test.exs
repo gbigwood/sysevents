@@ -135,6 +135,45 @@ defmodule SyseventsTest do
     assert fourth["parent_id"] == event_id2
   end
 
+  test "get tree chain from middle" do
+    # create test events
+    event_id0 = uuid()
+    event0 = %Link{parent_id: "321", type: "test_event"}
+
+    event_id1 = uuid()
+    event1 = %Link{parent_id: event_id0, type: "test_event"}
+
+    event_id2 = uuid()
+    event2 = %Link{parent_id: event_id0, type: "test_event"}
+
+    event_id3 = uuid()
+    event3 = %Link{parent_id: event_id2, type: "test_event"}
+
+    put_link(event_id0, event0)
+    put_link(event_id1, event1)
+    put_link(event_id2, event2)
+    put_link(event_id3, event3)
+
+    result = Poison.decode!(get_chain(event_id1).resp_body)
+
+    [first | tail] = result
+    assert first["id"] == event_id0
+    assert first["parent_id"] == "321"
+
+    [second | tail] = tail
+    assert second["id"] == event_id1
+    assert second["parent_id"] == event_id0
+
+    [third | tail] = tail
+    assert third["id"] == event_id2
+    assert third["parent_id"] == event_id0
+
+    [fourth | _] = tail
+    assert fourth["id"] == event_id3
+    assert fourth["parent_id"] == event_id2
+  end
+
+
   defp put_link(event_id, event) do
     # Create a PUT connection
     conn = conn(:put, "/link/#{event_id}", Poison.encode!(event))
