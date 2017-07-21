@@ -51,12 +51,33 @@ defmodule Sysevents do
   defp get_chain(event_id, accumulator) do
     case get_link_from_db(event_id) do
       nil -> accumulator
-      link-> get_chain(link.parent_id, [link | accumulator])
+      link-> get_parent_chain(link.parent_id, [link | accumulator]) ++ get_child_chain(link.id, accumulator)
+    end
+  end
+
+  defp get_parent_chain(event_id, accumulator) do
+    case get_link_from_db(event_id) do
+      nil -> accumulator
+      link-> get_parent_chain(link.parent_id, [link | accumulator])
+    end
+  end
+
+  defp get_child_chain(event_id, accumulator) do
+    case get_link_with_parent_from_db(event_id) do
+      nil -> accumulator
+      link-> get_child_chain(link.id, [link | accumulator])
     end
   end
 
   defp get_link_from_db(event_id) do
     case Event |> Sysevents.Repo.get_by(event_id: event_id) do
+      nil -> nil
+      event -> %Link{id: event.event_id, parent_id: event.parent_id, type: event.type}
+    end
+  end
+
+  defp get_link_with_parent_from_db(event_id) do
+    case Event |> Sysevents.Repo.get_by(parent_id: event_id) do
       nil -> nil
       event -> %Link{id: event.event_id, parent_id: event.parent_id, type: event.type}
     end
