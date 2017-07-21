@@ -51,7 +51,7 @@ defmodule Sysevents do
   defp get_chain(event_id, accumulator) do
     case get_link_from_db(event_id) do
       nil -> accumulator
-      link-> get_parent_chain(link.parent_id, [link | accumulator]) ++ get_child_chain(link.id, accumulator)
+      link-> get_parent_chain(link.parent_id, [link | accumulator]) ++ (get_child_chain(link.id, accumulator) |> Enum.reverse)
     end
   end
 

@@ -107,9 +107,13 @@ defmodule SyseventsTest do
     event_id2 = uuid()
     event2 = %Link{parent_id: event_id1, type: "test_event"}
 
+    event_id3 = uuid()
+    event3 = %Link{parent_id: event_id2, type: "test_event"}
+
     put_link(event_id0, event0)
     put_link(event_id1, event1)
     put_link(event_id2, event2)
+    put_link(event_id3, event3)
 
     result = Poison.decode!(get_chain(event_id1).resp_body)
 
@@ -122,9 +126,13 @@ defmodule SyseventsTest do
     assert second["id"] == event_id1
     assert second["parent_id"] == event_id0
 
-    [third | _] = tail
+    [third | tail] = tail
     assert third["id"] == event_id2
     assert third["parent_id"] == event_id1
+
+    [fourth | _] = tail
+    assert fourth["id"] == event_id3
+    assert fourth["parent_id"] == event_id2
   end
 
   defp put_link(event_id, event) do
