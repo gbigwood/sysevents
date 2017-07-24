@@ -154,23 +154,23 @@ defmodule SyseventsTest do
     put_link(event_id2, event2)
     put_link(event_id3, event3)
 
-    result = Poison.decode!(get_chain(event_id1).resp_body)
+    result = Poison.decode!(get_chain(event_id0).resp_body)
 
     [first | tail] = result
     assert first["id"] == event_id0
     assert first["parent_id"] == "321"
 
     [second | tail] = tail
-    assert second["id"] == event_id1
+    assert second["id"] == event_id2
     assert second["parent_id"] == event_id0
 
     [third | tail] = tail
-    assert third["id"] == event_id2
-    assert third["parent_id"] == event_id0
+    assert third["id"] == event_id3
+    assert third["parent_id"] == event_id2
 
     [fourth | _] = tail
-    assert fourth["id"] == event_id3
-    assert fourth["parent_id"] == event_id2
+    assert fourth["id"] == event_id1
+    assert fourth["parent_id"] == event_id0
   end
 
 
