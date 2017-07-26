@@ -28,7 +28,6 @@ defmodule SyseventsTest do
     assert conn.status == 404
   end
 
-
   test "rejects get for missing link" do
     # Create a test connection
     event_id = uuid()
@@ -43,7 +42,6 @@ defmodule SyseventsTest do
     assert conn.state == :sent
     assert conn.status == 404
   end
-
 
   test "rejects get for missing chain" do
     # Create a test connection
