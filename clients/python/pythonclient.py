@@ -70,19 +70,19 @@ def trace(info):
 ###########################
 
 ## 🙈 Monkeypatch thread???
-#class TraceableThread(threading.Thread):
-#    #  can't take factory function https://github.com/python/cpython/blob/master/Lib/concurrent/futures/thread.py#L136
-#    def __init__(self, find_parent_id, *args, **kwargs):
-#        super().__init__(*args, **kwargs)
-#        self._parent_id = find_parent_id(THREAD_LOCAL)
-#
-#    def run(self, *args, **kwargs):
-#        _construct_frame_stack(THREAD_LOCAL)
-#        _save_frame(THREAD_LOCAL, self._parent_id)
-#        super().run(*args, **kwargs)
-#
-#threading.Thread = partial(TraceableThread, _find_parent_id)
+class TraceableThread(threading.Thread):
+    # Can't take factory function https://github.com/python/cpython/blob/master/Lib/concurrent/futures/thread.py#L136
+    def __init__(self, find_parent_id, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._parent_id = find_parent_id(THREAD_LOCAL)  #parent threads locals
 
+    def run(self, *args, **kwargs):
+        _construct_frame_stack(THREAD_LOCAL)  #child threads locals
+        _save_frame(THREAD_LOCAL, self._parent_id)
+        super().run(*args, **kwargs)
+
+
+threading.Thread = partial(TraceableThread, _find_parent_id)
 
 ############################
 
@@ -93,9 +93,9 @@ def remove_pipeline():
 
 @trace("remove expired pipelines")
 def remove_expired_pipelines():
-    #with ThreadPoolExecutor(max_workers=4) as e:
-    #    for i in range(15):
-    #        e.submit(remove_pipeline)
+    with ThreadPoolExecutor(max_workers=4) as e:
+        for i in range(4):
+            e.submit(remove_pipeline)
     pass
 
 
@@ -130,3 +130,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print("I'm finished")
