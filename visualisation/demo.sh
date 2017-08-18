@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -e 
 set -x
 
@@ -15,16 +16,13 @@ curl -H 'Content-Type: application/json' -X PUT -d "{\"parent_id\": \"$seconduui
 curl -H 'Content-Type: application/json' -X PUT -d "{\"parent_id\": \"$seconduuid\", \"type\": \"output request\"}" http://localhost:4000/link/$fourthuuid
 curl -H 'Content-Type: application/json' -X PUT -d "{\"parent_id\": \"$thirduuid\", \"type\": \"output result\"}" http://localhost:4000/link/$fifthuuid
 
-# demo/smote test to 'GET' the chain
+# Demo/smote test to 'GET' the chain
 curl -f -H 'Content-Type: application/json' -X GET http://localhost:4000/chain/$seconduuid
 echo ""
 
-# convert to dotfile
+# Convert to dotfile
 python3 dotmaker.py $seconduuid /tmp/grid.dot
 cat /tmp/grid.dot
 
-# visualise
+# Visualise
 dot -Tpng /tmp/grid.dot -o /tmp/grid.png 
-
-
-
