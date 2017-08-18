@@ -48,6 +48,7 @@ defmodule Sysevents do
     end
   end
 
+
   defp get_chain(event_id, accumulator) do
     case get_link_from_db(event_id) do
       nil -> accumulator
@@ -80,12 +81,17 @@ defmodule Sysevents do
     |> Enum.map(fn event -> %Link{id: event.event_id, parent_id: event.parent_id, type: event.type} end)
   end
 
+  defp get_link_from_db(nil) do
+    nil
+  end
+
   defp get_link_from_db(event_id) do
     case Event |> Sysevents.Repo.get_by(event_id: event_id) do
       nil -> nil
       event -> %Link{id: event.event_id, parent_id: event.parent_id, type: event.type}
     end
   end
+
 
   match _ do
     send_resp(conn, 404, "Unknown request type")

@@ -1,4 +1,5 @@
 import threading
+import json
 import requests
 from uuid import uuid4
 
@@ -39,7 +40,16 @@ def _pop_stack(thread_locals):
 
 
 def _save_on_server(parent_id, current_id, wrapped_func, info):
-    print("saved {!s:36} {:36} {:36} {!s}".format(parent_id, current_id, wrapped_func.__name__, info))
+    # curl -H 'Content-Type: application/json' -X PUT -d "{\"parent_id\": \"$firstuuid\", \"type\": \"get user\"}" http://localhost:4000/link/$seconduuid
+    try:
+        response = requests.put(
+                url="http://localhost:4000/link/{}".format(current_id),
+                json={'parent_id': parent_id, 'type': info},
+                headers={'Content-Type': 'application/json'})
+        assert response.status_code == 200
+        print("Event: {!s:36} {:36} {:36} {!s}".format(parent_id, current_id, wrapped_func.__name__, info))
+    except Exception as e:
+        print("ruh roh", e)
 
 
 def trace(info):

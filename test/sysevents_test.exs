@@ -72,6 +72,20 @@ defmodule SyseventsTest do
     assert result["type"] == "test_event"
   end
 
+  test "allows put and get of nil" do
+    # create a test event
+    event_id = uuid()
+    event = %Link{parent_id: "", type: "test_event"}
+
+    put_link(event_id, event)
+
+    result = Poison.decode!(get_link(event_id).resp_body)
+
+    assert result["id"] == event_id
+    assert result["parent_id"] == ""
+    assert result["type"] == "test_event"
+  end
+
   test "get of chain with multiple links" do
     # create test events
     event_id0 = uuid()
