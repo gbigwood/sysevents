@@ -74,16 +74,24 @@ defmodule SyseventsTest do
 
   test "allows put and get of nil" do
     # create a test event
-    event_id = uuid()
-    event = %Link{parent_id: "", type: "test_event"}
+    event_id0 = uuid()
+    event0 = %Link{parent_id: nil, type: "test_event"}
 
-    put_link(event_id, event)
+    event_id1 = uuid()
+    event1 = %Link{parent_id: event_id0, type: "test_event"}
 
-    result = Poison.decode!(get_link(event_id).resp_body)
+    put_link(event_id0, event0)
+    put_link(event_id1, event1)
 
-    assert result["id"] == event_id
-    assert result["parent_id"] == ""
-    assert result["type"] == "test_event"
+    result = Poison.decode!(get_chain(event_id1).resp_body)
+
+    [first | tail] = result
+    assert first["id"] == event_id0
+    assert first["parent_id"] == nil
+
+    [second | _] = tail
+    assert second["id"] == event_id1
+    assert second["parent_id"] == event_id0
   end
 
   test "get of chain with multiple links" do

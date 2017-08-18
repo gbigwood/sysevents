@@ -92,7 +92,6 @@ defmodule Sysevents do
     end
   end
 
-
   match _ do
     send_resp(conn, 404, "Unknown request type")
   end

@@ -1,5 +1,4 @@
 import threading
-import json
 import requests
 from uuid import uuid4
 
@@ -69,7 +68,7 @@ def trace(info):
 ############################
 
 
-@trace("specific sub system")
+@trace("remove expired pipelines")
 def remove_expired_pipelines():
     pass
 
