@@ -3,7 +3,7 @@ import threading
 from uuid import uuid4
 
 
-THREAD_LOCAL = threading.local()  # Each call only gets a view so needs to be top level static or passed in
+THREAD_LOCAL = threading.local()  # 🙈 Each call gets a view so must be global or passed in 🙈 
 
 
 def _find_parent_id(thread_locals):
@@ -28,8 +28,7 @@ def _construct_frame_stack(thread_locals):
 
 
 def _pop_stack(thread_locals):
-    result = thread_locals.frame_stack.pop()
-    print("popped", result)
+    thread_locals.frame_stack.pop()
 
 
 def _save_on_server(parent_id, current_id):
@@ -39,8 +38,6 @@ def _save_on_server(parent_id, current_id):
 def label_and_find_in_stack(func):
     # You're not supposed to recurse in python so it's all good :)
     def func_wrapper():
-        # frame = inspect.currentframe()
-        # import ipdb; ipdb.set_trace()
         _construct_frame_stack(THREAD_LOCAL)
         parent_id = _find_parent_id(THREAD_LOCAL)
         current_id = _save_current_frame(THREAD_LOCAL)
