@@ -1,12 +1,16 @@
 import threading
+from concurrent.futures import ThreadPoolExecutor
 import requests
+import time
 from uuid import uuid4
+import threading
+from functools import partial
 
 
 # TODO extensions:
 # * Why not just use a global stack? -- because we want thread specific tracing
-# * How to inject stack across thread boundaries? -- e.g. spawner of thread pool
 # * Interplay with co-routines?
+# * How to inject stack across thread boundaries? -- e.g. spawner of thread pool?  Monkeypatch??
 
 
 THREAD_LOCAL = threading.local()  # 🙈 Each call gets a view so must be global or passed in 🙈 
@@ -19,12 +23,10 @@ def _find_parent_id(thread_locals):
         return None
 
 
-def _save_current_frame(thread_locals):
-    curr_id = str(uuid4())
+def _save_frame(thread_locals, curr_id):
     # Can't add attributes to frames cause they are wrappers for C struct (interpreter
     # implementation specific)
     thread_locals.frame_stack.append(curr_id)
-    return curr_id
 
 
 def _construct_frame_stack(thread_locals):
@@ -56,7 +58,8 @@ def trace(info):
         def func_wrapper(*args, **kwargs):
             _construct_frame_stack(THREAD_LOCAL)
             parent_id = _find_parent_id(THREAD_LOCAL)
-            current_id = _save_current_frame(THREAD_LOCAL)
+            current_id = str(uuid4())
+            _save_frame(THREAD_LOCAL, current_id)
             _save_on_server(parent_id, current_id, func, info)
             result = func(*args, **kwargs)
             _pop_stack(THREAD_LOCAL)
@@ -64,12 +67,35 @@ def trace(info):
         return func_wrapper
     return decorator
 
+###########################
+
+## 🙈 Monkeypatch thread???
+#class TraceableThread(threading.Thread):
+#    #  can't take factory function https://github.com/python/cpython/blob/master/Lib/concurrent/futures/thread.py#L136
+#    def __init__(self, find_parent_id, *args, **kwargs):
+#        super().__init__(*args, **kwargs)
+#        self._parent_id = find_parent_id(THREAD_LOCAL)
+#
+#    def run(self, *args, **kwargs):
+#        _construct_frame_stack(THREAD_LOCAL)
+#        _save_frame(THREAD_LOCAL, self._parent_id)
+#        super().run(*args, **kwargs)
+#
+#threading.Thread = partial(TraceableThread, _find_parent_id)
+
 
 ############################
+
+@trace("removing pipeline")
+def remove_pipeline():
+    time.sleep(1)
 
 
 @trace("remove expired pipelines")
 def remove_expired_pipelines():
+    #with ThreadPoolExecutor(max_workers=4) as e:
+    #    for i in range(15):
+    #        e.submit(remove_pipeline)
     pass
 
 
